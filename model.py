@@ -1,9 +1,9 @@
 import tensorflow as tf
 
 class Model():
-    def __init__(self, batch_size, dropout):
-        self.image = tf.placeholder(tf.float32, [batch_size, 32, 32, 3], 'input_images')
-        self.segm_map = tf.placeholder(tf.float32, [batch_size, 32, 32], 'output_segm_map')
+    def __init__(self, batch_size, dropout, w = 32,h=32):
+        self.image = tf.placeholder(tf.float32, [batch_size, w, h, 3], 'input_images')
+        self.segm_map = tf.placeholder(tf.float32, [batch_size, w, h], 'output_segm_map')
         # Make dropout also a placeholder !!!
 
         num_filters = [10, 12, 8]
