@@ -1,4 +1,4 @@
-from model import Model
+from model import Model,Model_fromLoad
 from load_data import Datagen, plot_data
 import tensorflow as tf
 from util import plot_segm_map_donkey, calc_iou
@@ -77,35 +77,37 @@ if len(allData.shape)==3:
     allData = allData[:,:,:,np.newaxis]
 data, segm_map,temp = mySample(allData,allSegm_map,batch_size)
 
-model = Model(batch_size, dropout,w = allData.shape[1],h=allData.shape[2],ndims = allData.shape[3])
+
 print(data.shape)
 print(segm_map.shape)
 
-num_iter = 1500#1500
-best_loss = 1.
-sess = tf.Session()
-saver = tf.train.Saver()
-sess.run(tf.global_variables_initializer())
-for iter in range(num_iter):
-    data_batch, segm_map_batch,temp = mySample(allData,allSegm_map,batch_size)
-    train_loss, _ = sess.run([model.total_loss, model.train_step], feed_dict={model.image:data_batch, model.segm_map:segm_map_batch})
-    if train_loss<best_loss:
-        print('new best guess- saving')
-        saver.save(sess, 'my_temp_model')
-        best_loss = train_loss
-    if iter%5 == 0:
-        data_batch, segm_map_batch,temp =mySample(allData,allSegm_map,batch_size)
-        test_loss, segm_map_pred = sess.run([model.total_loss, model.h4], feed_dict={model.image:data_batch, model.segm_map:segm_map_batch})
-        print('iter %5i/%5i loss is %5.3f and mIOU %5.3f'%(iter, num_iter, test_loss, calc_iou(segm_map_batch, segm_map_pred)))
-    #print('iteration ' + str(iter))
-
 #Final run
 data_batch, segm_map_batch,idx_d = mySample(allData,allSegm_map,batch_size)
-test_loss, segm_map_pred = sess.run([model.total_loss, model.h4], feed_dict={model.image:data_batch, model.segm_map:segm_map_batch})
-idx_disp = plot_segm_map_donkey(dataDisp[idx_d,:,:,:], segm_map_batch, segm_map_pred)
+
 #with tf.Session() as sess:
-#  new_saver = tf.train.import_meta_graph('my_test_model.meta')
-#  new_saver.restore(sess, tf.train.latest_checkpoint('./'))
-#  test_loss_load, segm_map_pred_load = sess.run([model.total_loss, new_saver.h4], feed_dict={new_saver.image:data_batch, new_saver.segm_map:segm_map_batch})
-#  plot_segm_map_donkey(dataDisp[idx_d,:,:,:], segm_map_batch, segm_map_pred_load,idx_disp)
+  #sess.run(tf.global_variables_initializer())
+#
+
+#print(model.h4)
+sess = tf.Session()
+#
+sess.run(tf.global_variables_initializer())
+graph = tf.get_default_graph()
+
+#print(sess.run(graph.get_tensor_by_name("bias1:0")))
+new_saver = tf.train.import_meta_graph('my_test_model_1500.meta')
+new_saver.restore(sess, tf.train.latest_checkpoint('./'))
+#b1 = tf.get_variable('bias1',[10,])
+model = Model_fromLoad(graph,batch_size,dropout,w = allData.shape[1],h=allData.shape[2],ndims = allData.shape[3])
+print(allData.shape)
+#segm_map_pred_load = sess.run(model.h4, feed_dict={model.image:data_batch})
+#a = graph.get_tensor_by_name("bias1:0")
+#tf.Print(a, [a], message="This is a: ")
+# Add more elements of the graph using a
+print(sess.run(graph.get_tensor_by_name("bias1:0")))
+print(sess.run(graph.get_tensor_by_name("weight1:0"))[0,0,0,:])
+#print(model.h4)
+segm_map_pred_load = sess.run(model.h4, feed_dict={model.image:(allData[0:40,:,:,:]-130)*(1./70.)})
+plot_segm_map_donkey(dataDisp[0:5,:,:,:], segm_map_batch, segm_map_pred_load)
+print('done')
 plt.show()

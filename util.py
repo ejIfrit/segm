@@ -11,7 +11,9 @@ def plot_segm_map(data, segm_map, segm_map_pred):
 
     for row in range(num_plot):
         idx = np.random.randint(0,num_samples)
-        ax[row, 0].imshow(data[idx]*70+130)
+        datashow = data[idx]*70+130
+
+        ax[row, 0].imshow(datashow.astype('uint8'))
         ax[row, 1].imshow(segm_map[idx])
         ax[row, 2].imshow(segm_map_pred[idx])
         for axis in ax[row]:
@@ -25,19 +27,24 @@ def plot_segm_map(data, segm_map, segm_map_pred):
     f.subplots_adjust(wspace=0)
     plt.show()
 
-def plot_segm_map_donkey(data, segm_map, segm_map_pred):
+def plot_segm_map_donkey(data, segm_map, segm_map_pred,idx=None):
     num_samples = data.shape[0]
 
     num_plot = 5
 
     f,ax = plt.subplots(num_plot, 3)
     f.tight_layout()
+    if idx is None:
+        idx = np.random.choice(data.shape[0], num_plot)
+        #print(idx)
+    for row,id in zip(range(num_plot),idx):
 
-    for row in range(num_plot):
-        idx = np.random.randint(0,num_samples)
-        ax[row, 0].imshow(data[idx])
-        ax[row, 1].imshow(segm_map[idx])
-        ax[row, 2].imshow(segm_map_pred[idx])
+        if data.shape[-1] == 2:
+            data = data[:,:,:,0]
+        datashow = np.squeeze(data[id])#*70.+130.)
+        ax[row, 0].imshow(datashow.astype('uint8'))
+        ax[row, 1].imshow(segm_map[id])
+        ax[row, 2].imshow(segm_map_pred[id])
         for axis in ax[row]:
             axis.get_xaxis().set_visible(False)
             axis.get_yaxis().set_visible(False)
@@ -47,7 +54,8 @@ def plot_segm_map_donkey(data, segm_map, segm_map_pred):
             ax[0,2].set_title('Pred segmentation map')
     f.subplots_adjust(hspace=0.1)  #No horizontal space between subplots
     f.subplots_adjust(wspace=0)
-    plt.show()
+    return idx
+    #plt.show()
 
 
 def calc_iou(segm_map, segm_map_pred):
