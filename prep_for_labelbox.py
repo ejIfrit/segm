@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
 """
-Look at a file and see if a mask exists for it. Analyse the image based on the mask
-
+Input a list of tubs to transfer, put them in a folder at 4x size to make them
+easier to label in labelbox
+nTubs variable is a vector where you put in a seris of 'start:stop:strides', e.g.
+--nTubs [1:10:2,20:30:3] would give tub numbers 1,3,5,7,9,20,23,26,29
+path is a folder with donkeycar tubs in it
+dirtosave is the directory name that the images get saved to 
 Usage:
     test.py (prep) [--path=<fn>] [--nResize=<n1>] [--nTubs=<nt>]
 

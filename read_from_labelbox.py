@@ -27,7 +27,7 @@ def getMaskFromLabelBox(export_folder,labelKey='Track',nResize=1):
             imOut = io.imread(url)
             #plt.imshow(thresh1)
             if nResize!=1:
-                height,width,depth = img1_orig.shape
+                height,width,depth = imOut.shape
                 imOut = cv2.resize(imOut,(int(width*nResize),int(height*nResize)))
                 thresh1 = cv2.resize(thresh1,(int(width*nResize),int(height*nResize)))
 
@@ -35,9 +35,15 @@ def getMaskFromLabelBox(export_folder,labelKey='Track',nResize=1):
             masks.append(thresh1)
         ims = np.array(ims)
         masks = np.array(masks)
+        im_grays = []
+        for o in ims:
+            img1 = cv2.cvtColor(o, cv2.COLOR_RGB2GRAY)
+            im_grays.append(img1)
+        im_grays = np.array(im_grays)
         print(ims.shape)
+        print(im_grays.shape)
         print(masks.shape)
-        return ims,masks
+        return im_grays,masks,ims
             #plt.imshow(imOut)
             #plt.show()
 
